@@ -8,7 +8,7 @@ var spotify = new Spotify(keys.spotify);
 var moment = require('moment');
 moment().format();
 
-//console.log(keys);
+
 // var spotify = new Spotify({
 //   id: '07dcf4cd5d054d468b18cf6d15261884',
 //   secret: '8c0b294342724320a81115ed8e81bb94'
@@ -36,6 +36,8 @@ if (selection == "movie-this"){
 
   if (SearchName != ""){
     
+    console.log("Movie information is going to be displayed here");
+
     var OMDBqueryUrl = "http://www.omdbapi.com/?t=" + SearchName + "&y=&plot=short&apikey=trilogy";
 
     //console.log(OMDBqueryUrl);
@@ -57,6 +59,7 @@ if (selection == "movie-this"){
   }
   else{
 
+    console.log("No movie name provided, lets look at <Mr. Nobody>!")
     SearchName = "Mr. Nobody";
     var OMDBqueryUrl = "http://www.omdbapi.com/?t=" + SearchName + "&y=&plot=short&apikey=trilogy";
 
@@ -81,7 +84,7 @@ if (selection == "movie-this"){
 
 if (selection == "concert-this"){
 
-  console.log("Concert is going to be displayed here");
+  console.log("Concert list is going to be displayed here");
 
   var BandsInTownUrl = "https://rest.bandsintown.com/artists/" + SearchName + "/events?app_id=codingbootcamp";
   console.log(BandsInTownUrl);
@@ -93,15 +96,8 @@ if (selection == "concert-this"){
       //console.log(JSON.parse(body));
       
       var concertList = JSON.parse(body);
-
      
-      // for (var i=0; i<concertList.length; i++){ 
-
-      //   if (concertList[i].venue.name != undefined && concertList[i].venue.city != undefined && concertList[i].venue.country != undefined && concertList[i].datetime != undefined){
-      //     console.log("Venue: " + concertList[i].venue.name + "\t Location: "+ concertList[i].venue.city +","+concertList[i].venue.country + "\t Date: " + concertList[i].datetime);
-      //   }
-      // }
-     
+   
       for (var i=0; i<concertList.length; i++){ 
 
          if (concertList[i].venue.name != undefined && concertList[i].venue.city != undefined && concertList[i].venue.country != undefined && concertList[i].datetime != undefined){
@@ -120,24 +116,11 @@ if (selection == "concert-this"){
 if (selection == "spotify-this-song"){
 
   if (SearchName != ""){
-    console.log("Song is going to be displayed here");
+    console.log("Song list is going to be displayed here");
     spotify.search({ type: 'track', query: SearchName }, function(err, data) {
       if (err) {
         return console.log('Error occurred: ' + err);
       }
-      // console.log(data); 
-      // console.log(data.tracks.items);
-      // console.log(JSON.stringify(data, null, 2)); 
-      // var artists;
-      // for (var i=0; i<data.tracks.items.length; i++){
-      //   if (i==0){
-      //     artists = "Artist(s) are: " + data.tracks.items[i].artists[0].name;
-      //   }
-      //   else{
-      //     artists = artists + ", " + data.tracks.items[i].artists[0].name;
-      //   }   
-      // }
-      // console.log(artists);
       for (var i=0; i<data.tracks.items.length; i++){
         console.log("Artist(s): "+ data.tracks.items[i].artists[0].name +" Song's name: " + data.tracks.items[i].name + " Preview link: " + data.tracks.items[i].preview_url + "Album name: " + data.tracks.items[i].album.name);
       }
@@ -177,8 +160,8 @@ if (selection == "do-what-it-says"){
   
     var dataArr = data.split(",");
   
-    //console.log(dataArr[0]);
-    //console.log(dataArr[1]);
+    console.log(dataArr[0]);
+    console.log(dataArr[1]);
 
     if (dataArr[0] == "movie-this"){
 
@@ -202,7 +185,50 @@ if (selection == "do-what-it-says"){
            
     }
 
+    if (dataArr[0] == "concert-this"){
+      var BandsInTownUrl = "https://rest.bandsintown.com/artists/" + dataArr[1] + "/events?app_id=codingbootcamp";
+      console.log(BandsInTownUrl);
+    
+          request(BandsInTownUrl, function(error, response, body) {
+        
+          if (!error && response.statusCode === 200) {
+        
+          //console.log(JSON.parse(body));
+          
+          var concertList = JSON.parse(body);
+         
+       
+          for (var i=0; i<concertList.length; i++){ 
+    
+             if (concertList[i].venue.name != undefined && concertList[i].venue.city != undefined && concertList[i].venue.country != undefined && concertList[i].datetime != undefined){
+             console.log("Venue: " + concertList[i].venue.name + "\t Location: "+ concertList[i].venue.city +","+concertList[i].venue.country + "\t Date: " + concertList[i].datetime.split("T")[0]);
+            }
+          }
+         
+    
+    
+    
+        }
+           });
+      
+    }
 
+    if (dataArr[0] == "spotify-this-song"){
+
+    
+        spotify.search({ type: 'track', query: dataArr[1] }, function(err, data) {
+        if (err) {
+          return console.log('Error occurred: ' + err);
+        }
+        for (var i=0; i<data.tracks.items.length; i++){
+          console.log("Artist(s): "+ data.tracks.items[i].artists[0].name +" Song's name: " + data.tracks.items[i].name + " Preview link: " + data.tracks.items[i].preview_url + "Album name: " + data.tracks.items[i].album.name);
+        }
+      });
+    
+      
+      
+      
+    }
 
 
   });
